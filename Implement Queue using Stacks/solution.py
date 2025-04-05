@@ -106,48 +106,39 @@ class LinkedStack:
         return string
 
 class MyQueue:
-    """Queue implemented using a single stack"""
+    """Queue implemented using two stacks"""
     def __init__(self):
-        self.stack = LinkedStack()
+        self.in_stack = LinkedStack()
+        self.out_stack = LinkedStack()
 
     def push(self, x: int) -> None:
-        """OUSH METHOD"""
-        self.stack.push(x)
+        """PUSH METHOD"""
+        self.in_stack.push(x)
+
+    def _transfer(self):
+        """TRANSFER helping METHOD"""
+        while not self.in_stack.is_empty():
+            self.out_stack.push(self.in_stack.pop())
 
     def pop(self) -> int:
         """POP METHOD"""
         if self.empty():
             raise IndexError("Pop from empty queue")
-        return self._pop_bottom()
-
-    def _pop_bottom(self):
-        """Helper: FOR POP METHOD"""
-        top = self.stack.pop()
-        if self.stack.is_empty():
-            return top
-        item = self._pop_bottom()
-        self.stack.push(top)
-        return item
+        if self.out_stack.is_empty():
+            self._transfer()
+        return self.out_stack.pop()
 
     def peek(self) -> int:
         """PEEK METHOD"""
         if self.empty():
             raise IndexError("Peek from empty queue")
-        return self._peek_bottom()
-
-    def _peek_bottom(self):
-        """Helper: FOR PEEK METHOD"""
-        top = self.stack.pop()
-        if self.stack.is_empty():
-            self.stack.push(top)
-            return top
-        item = self._peek_bottom()
-        self.stack.push(top)
-        return item
+        if self.out_stack.is_empty():
+            self._transfer()
+        return self.out_stack.peek()
 
     def empty(self) -> bool:
         """EMPTY METHOD"""
-        return self.stack.is_empty()
+        return self.in_stack.is_empty() and self.out_stack.is_empty()
 
     def __len__(self):
-        return len(self.stack)
+        return len(self.in_stack) + len(self.out_stack)
